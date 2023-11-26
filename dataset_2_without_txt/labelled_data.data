@@ -1,5 +1,0 @@
-classes = 4
-train = training_image/train.txt
-valid = training_image/test.txt
-names = training_image/classes.names
-backup = backup

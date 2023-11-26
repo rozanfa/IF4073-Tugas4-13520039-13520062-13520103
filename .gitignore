@@ -12,3 +12,6 @@
 /__pycache__
 /bak-dataset
 /flip_image.ipynb
+__pycache__
+.venv
+*.egg-info
