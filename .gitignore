@@ -14,4 +14,6 @@
 /flip_image.ipynb
 __pycache__
 .venv
+venv
 *.egg-info
+/dataset_none

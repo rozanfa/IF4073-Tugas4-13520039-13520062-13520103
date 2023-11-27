@@ -26,7 +26,7 @@ class FFTModel:
         1/273, 0,
     )
 
-    def __init__(self, model_gen=None):
+    def __init__(self, model_gen: SVC | None = None):
         self._pcas: list[PCA] | None = None
         self._scaler: StandardScaler | None = None
         self._model: SVC = None  # type: ignore
@@ -85,7 +85,7 @@ class FFTModel:
         self._scaler = StandardScaler()
         d = self._get_transformed_data(d, fit=True)
         if self._model_gen is None:
-            self._model = SVC(kernel='rbf', C=4, random_state=42)
+            self._model = SVC(kernel='rbf', C=4, random_state=42, probability=True, verbose=True)
         else:
             self._model = self._model_gen()
         return self._model.fit(d, y)
