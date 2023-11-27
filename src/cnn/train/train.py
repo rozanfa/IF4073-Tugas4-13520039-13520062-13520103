@@ -3,9 +3,9 @@ import os
 
 # check if Driver-behaviors-10 is exist
 if not os.path.exists("datasets/Driver-behaviors-10"):
-    # rf = Roboflow(api_key=os.environ.get("ROBOFLOW_KEY"))
-    # project = rf.workspace("jui").project("driver-behaviors")
-    # dataset = project.version(10).download("yolov8")
+    rf = Roboflow(api_key=os.environ.get("ROBOFLOW_KEY"))
+    project = rf.workspace("jui").project("driver-behaviors")
+    dataset = project.version(10).download("yolov8")
     os.rename("Driver-behaviors-10", "datasets/Driver-behaviors-10")
 
 print("Dataset loaded")
