@@ -7,9 +7,9 @@ import cv2
 from PIL import Image
 
 m_col = {
-    'car': (0, 0, 255),
-    'bus': (0, 255, 0),
-    'truck': (255, 0, 0),
+    "car": (0, 0, 255),
+    "bus": (0, 255, 0),
+    "truck": (255, 0, 0),
 }
 
 
@@ -19,55 +19,69 @@ def yolo_predict(model, img):
 
 
 def multi_predict(model, img):
-    images, bbox = get_sub_images(img)
-    preds = model.predict_proba([
-        Image.fromarray(im).resize((256, 256))
-        for im in images
-    ], return_dict=True)
+    images, bbox, hierarchy = get_sub_images(img)
     ann = Annotator(img)
-    for i in range(len(images)):
-        p = preds[i]
+    preds = [
+        model.single_predict(Image.fromarray(im).resize((256, 256))) for im in images
+    ]
+    for idx, p in enumerate(preds):
         first_pred = list(p.keys())[0]
-        if first_pred == 'none' or p[first_pred] < 0.6:
+        # Skip if none
+        if first_pred == "none" or p[first_pred] < 0.6:
             continue
-        ann.box_label(
-            bbox[i],
-            label=f"{first_pred} {p[first_pred]:.2f}",
-            color=m_col[first_pred],
-        )
+
+        # Traverse hierarchy
+        i = idx
+        while hierarchy[i] != -1:
+            parent_pred = list(preds[hierarchy[i]].keys())[0]
+
+            # If parent has same prediction, skip
+            if parent_pred == first_pred:
+                break
+
+            i = hierarchy[i]
+
+        # If no parent has same prediction, annotate
+        if hierarchy[i] == -1:
+            ann.box_label(
+                bbox[idx],
+                label=f"{first_pred} {p[first_pred]:.2f}",
+                color=m_col[first_pred],
+            )
+
     return cv2.cvtColor(ann.im, cv2.COLOR_BGR2RGB)
 
 
 MODELS = {
-    'SVC-Single': {
-        'type': 'non_cnn',
-        'path': 'modelSVC4.pkl',
-        'video': False,
-        'multilabel': False,
-        'loader': FFTModel.load,
-        'predict': lambda m, img: m.single_predict(img),
+    "SVC-Single": {
+        "type": "non_cnn",
+        "path": "modelSVC4.pkl",
+        "video": False,
+        "multilabel": False,
+        "loader": FFTModel.load,
+        "predict": lambda m, img: m.single_predict(img),
     },
-    'SVC-Multi': {
-        'from': 'SVC-Single',
-        'video': False,
-        'multilabel': True,
-        'predict': multi_predict,
-        'img_loader': lambda img: cv2.imread(img),
+    "SVC-Multi": {
+        "from": "SVC-Single",
+        "video": False,
+        "multilabel": True,
+        "predict": multi_predict,
+        "img_loader": lambda img: cv2.imread(img),
     },
-    'CNN-medium': {
-        'type': 'cnn',
-        'path': 'medium vehicle.pt',
-        'video': True,
-        'multilabel': True,
-        'loader': YOLO,
-        'predict': yolo_predict,
+    "CNN-medium": {
+        "type": "cnn",
+        "path": "medium vehicle.pt",
+        "video": True,
+        "multilabel": True,
+        "loader": YOLO,
+        "predict": yolo_predict,
     },
-    'CNN-nano': {
-        'type': 'cnn',
-        'path': 'nano vehicle.pt',
-        'video': True,
-        'multilabel': True,
-        'loader': YOLO,
-        'predict': yolo_predict,
-    }
+    "CNN-nano": {
+        "type": "cnn",
+        "path": "nano vehicle.pt",
+        "video": True,
+        "multilabel": True,
+        "loader": YOLO,
+        "predict": yolo_predict,
+    },
 }
