@@ -17,3 +17,5 @@ __pycache__
 venv
 *.egg-info
 /dataset_none
+/src/cnn/train/*
+!/src/cnn/train/train.py 
