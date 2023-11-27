@@ -65,6 +65,8 @@ class Window(QMainWindow):
             )
 
     def resetPrediction(self):
+        if not self.media:
+            return
         if self.is_video:
             self.setMediaControl(0, isPlaying=False, media=None)  # TODO
         else:

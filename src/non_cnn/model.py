@@ -100,18 +100,20 @@ class FFTModel:
     def predict(self, X):
         return self._model.predict(self._preprocess_and_transform(X))
 
-    def predict_proba(self, X):
-        return self._model.predict_proba(self._preprocess_and_transform(X))
+    def predict_proba(self, X, return_dict=False):
+        p = self._model.predict_proba(self._preprocess_and_transform(X))
+        if return_dict:
+            p = [
+                dict(sorted({
+                    self._id2label[self._model.classes_[i]]: p[j][i]
+                    for i in range(len(p[j]))
+                }.items(), key=lambda x: x[1], reverse=True))
+                for j in range(len(p))
+            ]
+        return p
 
     def single_predict(self, X):
-        p = self._model.predict_proba(self._preprocess_and_transform([X]))[0]
-        p = {
-            self._id2label[self._model.classes_[i]]: p[i]
-            for i in range(len(p))
-        }
-        return dict(sorted(
-                p.items(), key=lambda x: x[1], reverse=True,
-        ))
+        return self.predict_proba([X], return_dict=True)[0]
 
     def save(self, path):
         mod_gen = self._model_gen

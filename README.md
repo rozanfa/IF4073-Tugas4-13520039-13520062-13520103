@@ -1,5 +1,7 @@
-Install package first with: (assuming cwd is root repo)
+Assuming cwd is the repo's root:
+1. Install package first with:
 ```sh
 pip install -e ./src
 ```
-Run GUI by running `src/gui/controller/nonCnn.py` (will be improved with main menu)
+2. Run GUI by running `src/gui/controller/main.py`
+3. To uninstall package, simply `pip uninstall vehiclass`

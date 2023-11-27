@@ -20,13 +20,21 @@ def yolo_predict(model, img):
 
 def multi_predict(model, img):
     images, bbox = get_sub_images(img)
+    preds = model.predict_proba([
+        Image.fromarray(im).resize((256, 256))
+        for im in images
+    ], return_dict=True)
     ann = Annotator(img)
-    for i, im in enumerate(images):
-        p = model.single_predict(Image.fromarray(im).resize((256, 256)))
+    for i in range(len(images)):
+        p = preds[i]
         first_pred = list(p.keys())[0]
-        if first_pred == 'none':
+        if first_pred == 'none' or p[first_pred] < 0.6:
             continue
-        ann.box_label(bbox[i], label=f"{first_pred} {p[first_pred]:.2f}", color=m_col[first_pred])
+        ann.box_label(
+            bbox[i],
+            label=f"{first_pred} {p[first_pred]:.2f}",
+            color=m_col[first_pred],
+        )
     return cv2.cvtColor(ann.im, cv2.COLOR_BGR2RGB)
 
 
