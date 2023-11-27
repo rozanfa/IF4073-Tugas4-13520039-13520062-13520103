@@ -105,10 +105,13 @@ class FFTModel:
 
     def single_predict(self, X):
         p = self._model.predict_proba(self._preprocess_and_transform([X]))[0]
-        return {
+        p = {
             self._id2label[self._model.classes_[i]]: p[i]
             for i in range(len(p))
         }
+        return dict(sorted(
+                p.items(), key=lambda x: x[1], reverse=True,
+        ))
 
     def save(self, path):
         mod_gen = self._model_gen

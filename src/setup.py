@@ -13,5 +13,7 @@ setup(
         'Pillow',
         'matplotlib',
         'pyqt5',
+        'ultralytics',
+        'opencv-python'
     ],
 )
